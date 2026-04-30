@@ -269,4 +269,41 @@ header nav .nav-sections ul > li > ul > li {
 /* tools */
 header nav .nav-tools {
   grid-area: tools;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+header nav .nav-cart-btn {
+  position: relative;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  color: var(--text-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+}
+
+header nav .nav-cart-btn:hover {
+  color: var(--link-color);
+}
+
+header nav .nav-cart-badge {
+  position: absolute;
+  top: -4px;
+  right: -8px;
+  background-color: var(--link-color);
+  color: var(--background-color);
+  border-radius: 50%;
+  min-width: 18px;
+  height: 18px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+  padding: 0 3px;
+  pointer-events: none;
 }

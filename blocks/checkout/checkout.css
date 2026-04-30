@@ -1,0 +1,118 @@
+.checkout {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.checkout .checkout-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+@media (width >= 900px) {
+  .checkout .checkout-layout {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 48px;
+  }
+
+  .checkout .checkout-summary {
+    flex: 1 1 55%;
+    position: sticky;
+    top: calc(var(--nav-height) + 24px);
+  }
+
+  .checkout .checkout-form-wrap {
+    flex: 0 0 40%;
+  }
+}
+
+.checkout .checkout-summary-title,
+.checkout .checkout-form-title {
+  margin-top: 0;
+  font-size: var(--heading-font-size-s);
+}
+
+.checkout .checkout-items {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.checkout .checkout-item {
+  display: grid;
+  grid-template-columns: 60px 1fr;
+  gap: 12px;
+  align-items: start;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--light-color);
+}
+
+.checkout .checkout-item img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.checkout .checkout-item-title {
+  font-weight: 500;
+  margin: 0 0 4px;
+}
+
+.checkout .checkout-item-variants,
+.checkout .checkout-item-meta {
+  font-size: var(--body-font-size-xs);
+  color: var(--dark-color);
+  margin: 2px 0;
+}
+
+.checkout .checkout-totals {
+  border-top: 2px solid var(--text-color);
+  padding-top: 12px;
+}
+
+.checkout .checkout-subtotal {
+  font-size: var(--body-font-size-m);
+  margin: 0;
+}
+
+.checkout .checkout-card-field {
+  border: 1px solid var(--dark-color);
+  border-radius: 4px;
+  padding: 12px;
+  margin-bottom: 16px;
+  min-height: 48px;
+}
+
+.checkout .checkout-error {
+  background-color: #fff0f0;
+  border: 1px solid #e53e3e;
+  border-radius: 4px;
+  color: #c53030;
+  font-size: var(--body-font-size-xs);
+  padding: 10px 14px;
+  margin-bottom: 12px;
+}
+
+.checkout .checkout-submit-btn {
+  width: 100%;
+}
+
+.checkout .checkout-submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.checkout .checkout-secure-note {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--body-font-size-xs);
+  color: var(--dark-color);
+  margin: 12px 0 0;
+  justify-content: center;
+}
