@@ -1,0 +1,242 @@
+.festival {
+  --festival-brown: #5c3317;
+  --festival-amber: #d4890a;
+  --festival-cream: #fdf6e3;
+  --festival-dark: #2d1a0e;
+
+  font-family: var(--body-font-family);
+  color: var(--festival-dark);
+  overflow: hidden;
+
+  /* stretch outside the default section padding */
+  margin: 0 calc(-1 * var(--section-padding, 24px));
+}
+
+/* ── Hero ─────────────────────────────────────────── */
+.festival .festival-hero {
+  display: flex;
+  flex-direction: column;
+  min-height: 60vh;
+  background-color: var(--festival-dark);
+}
+
+@media (width >= 900px) {
+  .festival .festival-hero {
+    flex-direction: row;
+    min-height: 70vh;
+  }
+}
+
+.festival .festival-hero-image {
+  flex: 1 1 50%;
+  overflow: hidden;
+}
+
+.festival .festival-hero-image picture,
+.festival .festival-hero-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.festival .festival-hero-text {
+  flex: 1 1 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 40px 32px;
+  background-color: var(--festival-dark);
+  color: var(--festival-cream);
+}
+
+@media (width >= 900px) {
+  .festival .festival-hero-text {
+    padding: 64px 48px;
+  }
+}
+
+.festival .festival-eyebrow {
+  font-family: var(--heading-font-family);
+  font-size: var(--body-font-size-s);
+  font-weight: 600;
+  color: var(--festival-amber);
+  margin: 0 0 8px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.festival .festival-title {
+  font-family: var(--heading-font-family);
+  font-size: clamp(2.6rem, 6vw, 4.4rem);
+  font-weight: 700;
+  color: var(--festival-cream);
+  line-height: 1.0;
+  margin: 0 0 28px;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+}
+
+.festival .festival-date {
+  font-family: var(--heading-font-family);
+  font-size: clamp(1.2rem, 3vw, 1.8rem);
+  font-weight: 600;
+  color: var(--festival-amber);
+  margin: 0 0 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgb(255 255 255 / 15%);
+}
+
+.festival .festival-location {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: var(--body-font-size-s);
+  color: var(--festival-cream);
+  margin: 0;
+  opacity: 0.85;
+  line-height: 1.4;
+}
+
+.festival .festival-location svg {
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+
+/* ── Features bar ─────────────────────────────────── */
+.festival .festival-features {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background-color: var(--festival-brown);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0;
+}
+
+.festival .festival-feature {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 32px 24px;
+  color: var(--festival-cream);
+  gap: 12px;
+  border-right: 1px solid rgb(255 255 255 / 12%);
+}
+
+.festival .festival-feature:last-child {
+  border-right: none;
+}
+
+.festival .festival-feature-icon {
+  font-size: 2.4rem;
+  line-height: 1;
+}
+
+.festival .festival-feature span:last-child {
+  font-size: var(--body-font-size-s);
+  line-height: 1.4;
+  font-weight: 500;
+}
+
+/* ── Schedule ─────────────────────────────────────── */
+.festival .festival-schedule {
+  background-color: var(--festival-cream);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+}
+
+@media (width >= 900px) {
+  .festival .festival-schedule {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.festival .festival-schedule-block {
+  padding: 40px 32px;
+  border-bottom: 1px solid rgb(92 51 23 / 15%);
+}
+
+@media (width >= 900px) {
+  .festival .festival-schedule-block {
+    border-bottom: none;
+    border-right: 1px solid rgb(92 51 23 / 15%);
+  }
+
+  .festival .festival-schedule-block:last-child {
+    border-right: none;
+  }
+}
+
+.festival .festival-schedule-block h2 {
+  font-family: var(--heading-font-family);
+  font-size: var(--heading-font-size-s);
+  color: var(--festival-amber);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 20px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--festival-amber);
+}
+
+.festival .festival-schedule-entries {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.festival .festival-schedule-entry {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0 24px;
+  align-items: baseline;
+}
+
+.festival .festival-schedule-day {
+  font-weight: 600;
+  color: var(--festival-brown);
+  font-size: var(--body-font-size-s);
+  white-space: nowrap;
+}
+
+.festival .festival-schedule-time {
+  color: var(--festival-dark);
+  font-size: var(--body-font-size-s);
+}
+
+/* ── Contact CTA ──────────────────────────────────── */
+.festival .festival-contact {
+  background-color: var(--festival-dark);
+  padding: 48px 32px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.festival .festival-phone.button {
+  background-color: var(--festival-amber);
+  color: var(--festival-dark);
+  border-color: var(--festival-amber);
+  font-size: var(--body-font-size-m);
+  font-weight: 700;
+  padding: 0.6em 1.6em;
+}
+
+.festival .festival-phone.button:hover {
+  background-color: #b8760a;
+  border-color: #b8760a;
+}
+
+.festival .festival-tagline {
+  color: var(--festival-cream);
+  opacity: 0.7;
+  font-size: var(--body-font-size-xs);
+  margin: 0;
+}
