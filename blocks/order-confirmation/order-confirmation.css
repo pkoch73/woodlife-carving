@@ -1,0 +1,33 @@
+.order-confirmation {
+  text-align: center;
+  padding: 48px 24px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.order-confirmation .order-confirmation-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background-color: #22c55e;
+  color: white;
+  font-size: 36px;
+  line-height: 64px;
+  margin: 0 auto 24px;
+}
+
+.order-confirmation .order-confirmation-title {
+  margin: 0 0 16px;
+}
+
+.order-confirmation .order-confirmation-message {
+  color: var(--dark-color);
+  margin: 0 0 16px;
+  line-height: 1.6;
+}
+
+.order-confirmation .order-confirmation-id {
+  font-size: var(--body-font-size-xs);
+  color: var(--dark-color);
+  margin: 0 0 32px;
+}
