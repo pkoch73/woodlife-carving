@@ -1,4 +1,4 @@
-const SLIDE_DURATION = 3000;
+const SLIDE_DURATION = 4000;
 
 function buildSlide(row) {
   const cells = [...row.children];
