@@ -131,7 +131,6 @@ export default function decorate(block) {
   });
 
   block.innerHTML = '';
-
   block.append(buildHero(imageEl, dateText, locationText));
 
   if (featureCells.length) {
