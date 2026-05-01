@@ -124,7 +124,7 @@ export default function decorate(block) {
         entries: parseScheduleEntries(cells.slice(1)),
       });
     } else if (cells.length >= 2 && !PHONE_RE.test(firstText)) {
-      featureCells = cells;
+      featureCells = [...featureCells, ...cells];
     } else if (PHONE_RE.test(firstText)) {
       [phoneText] = firstText.match(PHONE_RE);
     }
