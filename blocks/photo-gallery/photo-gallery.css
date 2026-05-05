@@ -1,0 +1,331 @@
+/* ── Modal overlay ────────────────────────────────── */
+.image-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgb(0 0 0 / 90%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.image-modal-content {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: #fff;
+  padding: 20px;
+  border-radius: 5px;
+  max-width: 90vw;
+  transition: transform 0.3s ease;
+}
+
+.image-modal-content.expanded {
+  padding: 10px;
+  max-width: 95vw;
+  transform: scale(1.15);
+}
+
+/* ── Modal main ───────────────────────────────────── */
+.image-modal-content .modal-main {
+  flex: 1;
+  max-width: 80vw;
+  position: relative;
+}
+
+.image-modal-content .modal-main.expanded {
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+/* ── Image container ──────────────────────────────── */
+.image-modal-content .image-container {
+  position: relative;
+  width: 100%;
+  cursor: pointer;
+}
+
+.image-modal-content .image-container img {
+  width: 100%;
+  max-height: calc(70vh - 100px);
+  object-fit: contain;
+  display: block;
+}
+
+/* nav buttons — base first, then context hover */
+.image-modal-content .nav-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgb(0 0 0 / 30%);
+  border: none;
+  color: #fff;
+  opacity: 0;
+  cursor: pointer;
+  padding: 8px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: opacity 0.3s ease, background 0.2s;
+  z-index: 2;
+}
+
+.image-modal-content .nav-button:hover {
+  opacity: 1;
+  background: rgb(0 0 0 / 60%);
+}
+
+.image-modal-content .nav-button.prev {
+  left: 8px;
+}
+
+.image-modal-content .nav-button.next {
+  right: 8px;
+}
+
+.image-modal-content .image-container:hover .nav-button {
+  opacity: 0.85;
+}
+
+/* expand button — base first, then context hover */
+.image-modal-content .expand-button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 30px;
+  height: 30px;
+  background: rgb(0 0 0 / 30%);
+  border: none;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 3;
+}
+
+.image-modal-content .expand-button:hover {
+  opacity: 1;
+}
+
+.image-modal-content .image-container:hover .expand-button {
+  opacity: 0.8;
+}
+
+/* ── Thumbnails ───────────────────────────────────── */
+.image-modal-content .thumbnails-container {
+  display: flex;
+  gap: 10px;
+  padding: 10px 32px;
+  overflow: hidden;
+  justify-content: center;
+  height: 64px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.image-modal-content:hover .thumbnails-container {
+  opacity: 1;
+}
+
+.image-modal-content .thumb-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  color: #555;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+}
+
+.image-modal-content .thumb-nav.prev {
+  left: 4px;
+}
+
+.image-modal-content .thumb-nav.next {
+  right: 4px;
+}
+
+.image-modal-content .thumbnails-wrapper {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  max-width: 100%;
+  scrollbar-width: none;
+}
+
+.image-modal-content .thumbnails-wrapper::-webkit-scrollbar {
+  display: none;
+}
+
+.image-modal-content .thumbnail {
+  width: 60px;
+  height: 40px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border-color 0.3s ease;
+  flex-shrink: 0;
+}
+
+.image-modal-content .thumbnail:hover {
+  border-color: rgb(0 0 0 / 30%);
+}
+
+.image-modal-content .thumbnail.active {
+  border-color: #333;
+}
+
+.image-modal-content .thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ── Modal controls ───────────────────────────────── */
+.image-modal-content .modal-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  gap: 10px;
+}
+
+.image-modal-content .slideshow-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.image-modal-content .play-button,
+.image-modal-content .slide-nav {
+  border: none;
+  background: none;
+  color: #555;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.75;
+  transition: opacity 0.2s, color 0.2s;
+  text-decoration: none;
+}
+
+.image-modal-content .play-button:hover,
+.image-modal-content .slide-nav:hover {
+  opacity: 1;
+  color: #222;
+}
+
+.image-modal-content .image-counter {
+  font-style: italic;
+  color: #999;
+  font-size: var(--body-font-size-xs);
+  white-space: nowrap;
+}
+
+.image-modal-content .modal-title {
+  flex: 1;
+  text-align: center;
+  font-size: var(--body-font-size-xs);
+  font-weight: 700;
+  color: #333;
+  margin: 0 8px;
+}
+
+.image-modal-content .close-button {
+  background: none;
+  border: none;
+  color: #555;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.75;
+  transition: opacity 0.2s;
+}
+
+.image-modal-content .close-button:hover {
+  opacity: 1;
+  color: #222;
+}
+
+/* ── Gallery grid ─────────────────────────────────── */
+.photo-gallery {
+  padding: 20px;
+}
+
+.photo-gallery .photo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.photo-gallery .photo-item {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.photo-gallery .photo-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+  display: block;
+}
+
+.photo-gallery .photo-item:hover img {
+  transform: scale(1.05);
+}
+
+.image-modal-content.expanded .image-container img {
+  max-height: calc(80vh - 100px);
+}
+
+.photo-gallery .hover-circle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgb(0 0 0 / 40%);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  transition: transform 0.3s ease;
+  pointer-events: none;
+  color: #fff;
+}
+
+.photo-gallery .photo-item:hover .hover-circle {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* ── Responsive ───────────────────────────────────── */
+@media (width <= 600px) {
+  .image-modal-content .thumbnails-container {
+    display: none;
+  }
+
+  .image-modal-content .modal-title {
+    font-size: 10px;
+  }
+}
