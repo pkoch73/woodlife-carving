@@ -1,0 +1,230 @@
+.reviews {
+  --reviews-amber: #d4890a;
+  --reviews-brown: #5c3317;
+  --reviews-dark: #2d1a0e;
+  --reviews-cream: #fdf6e3;
+
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 40px 24px;
+}
+
+/* ── Summary bar ──────────────────────────────────── */
+.reviews .reviews-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  background: var(--reviews-cream);
+  border-radius: 8px;
+  padding: 24px 28px;
+  margin-bottom: 28px;
+}
+
+.reviews .reviews-summary-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.reviews .reviews-rating-number {
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--reviews-dark);
+  line-height: 1;
+}
+
+.reviews .reviews-count {
+  font-size: var(--body-font-size-s);
+  color: #666;
+}
+
+.reviews .reviews-write-link {
+  font-size: var(--body-font-size-s);
+  color: var(--reviews-brown);
+  text-decoration: underline;
+  white-space: nowrap;
+}
+
+.reviews .reviews-write-link:hover {
+  color: var(--reviews-amber);
+}
+
+/* ── Stars ────────────────────────────────────────── */
+.reviews .reviews-stars {
+  display: inline-flex;
+  gap: 1px;
+}
+
+.reviews .reviews-star {
+  color: #ddd;
+  font-size: 1rem;
+}
+
+.reviews .reviews-star.filled {
+  color: var(--reviews-amber);
+}
+
+.reviews .reviews-stars-large .reviews-star {
+  font-size: 1.6rem;
+}
+
+/* ── Cards ────────────────────────────────────────── */
+.reviews .reviews-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.reviews .reviews-card {
+  background: #fff;
+  border: 1px solid rgb(0 0 0 / 8%);
+  border-radius: 8px;
+  padding: 20px 24px;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 6%);
+}
+
+.reviews .reviews-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.reviews .reviews-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--reviews-brown);
+  color: var(--reviews-cream);
+  font-weight: 700;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.reviews .reviews-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.reviews .reviews-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.reviews .reviews-card-name {
+  font-weight: 600;
+  font-size: var(--body-font-size-s);
+  color: var(--reviews-dark);
+}
+
+.reviews .reviews-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.reviews .reviews-card-time {
+  font-size: var(--body-font-size-xs);
+  color: #888;
+}
+
+.reviews .reviews-card-text {
+  font-size: var(--body-font-size-s);
+  color: #444;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.reviews .reviews-read-more {
+  background: none;
+  border: none;
+  color: var(--reviews-brown);
+  cursor: pointer;
+  font-size: var(--body-font-size-s);
+  padding: 0;
+  text-decoration: underline;
+}
+
+.reviews .reviews-read-more:hover {
+  color: var(--reviews-amber);
+}
+
+/* ── Footer ───────────────────────────────────────── */
+.reviews .reviews-footer {
+  text-align: center;
+  margin-top: 24px;
+}
+
+.reviews .reviews-footer a {
+  color: var(--reviews-brown);
+  font-size: var(--body-font-size-s);
+  text-decoration: underline;
+}
+
+.reviews .reviews-footer a:hover {
+  color: var(--reviews-amber);
+}
+
+/* ── Skeleton loading ─────────────────────────────── */
+.reviews .reviews-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.reviews .reviews-skeleton-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #e8e8e8;
+  flex-shrink: 0;
+  animation: reviews-shimmer 1.4s ease-in-out infinite;
+}
+
+.reviews .reviews-skeleton-line {
+  height: 14px;
+  border-radius: 4px;
+  background: #e8e8e8;
+  animation: reviews-shimmer 1.4s ease-in-out infinite;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.reviews .reviews-skeleton-line-short {
+  width: 40%;
+}
+
+.reviews .reviews-skeleton-line-medium {
+  width: 70%;
+}
+
+.reviews .reviews-skeleton-line-xs {
+  width: 25%;
+  height: 10px;
+}
+
+@keyframes reviews-shimmer {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* ── Error ────────────────────────────────────────── */
+.reviews .reviews-error {
+  text-align: center;
+  padding: 40px 24px;
+  color: #666;
+}
+
+.reviews .reviews-error p {
+  margin: 0 0 16px;
+}

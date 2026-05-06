@@ -1,6 +1,6 @@
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type',
 };
 
@@ -15,9 +15,57 @@ function json(data, status = 200) {
   });
 }
 
+async function handleReviews(request, env) {
+  const cache = caches.default;
+  const cacheKey = new Request(request.url);
+  const cached = await cache.match(cacheKey);
+  if (cached) return cached;
+
+  const url = new URL(
+    'https://maps.googleapis.com/maps/api/place/details/json'
+    + `?place_id=${env.GOOGLE_PLACE_ID}`
+    + '&fields=rating,user_ratings_total,reviews,url'
+    + '&reviews_sort=newest'
+    + `&key=${env.GOOGLE_PLACES_API_KEY}`,
+  );
+
+  const placeRes = await fetch(url.toString());
+  const data = await placeRes.json();
+  const result = data.result || {};
+
+  const payload = {
+    rating: result.rating ?? null,
+    totalRatings: result.user_ratings_total ?? 0,
+    googleUrl: result.url ?? null,
+    reviews: (result.reviews || []).map((r) => ({
+      author: r.author_name,
+      avatar: r.profile_photo_url,
+      rating: r.rating,
+      text: r.text,
+      time: r.relative_time_description,
+    })),
+  };
+
+  const response = new Response(JSON.stringify(payload), {
+    headers: {
+      ...CORS_HEADERS,
+      'Content-Type': 'application/json',
+      'Cache-Control': 'public, max-age=3600',
+    },
+  });
+  await cache.put(cacheKey, response.clone());
+  return response;
+}
+
 export default {
   async fetch(request, env) {
     if (request.method === 'OPTIONS') return corsResponse();
+
+    const { pathname } = new URL(request.url);
+    if (pathname === '/reviews' && request.method === 'GET') {
+      return handleReviews(request, env);
+    }
+
     if (request.method !== 'POST') return json({ error: 'Method not allowed' }, 405);
 
     let body;
