@@ -191,6 +191,7 @@ header nav .nav-sections ul > li > ul {
 
 header nav .nav-sections ul > li > ul > li {
   font-weight: 400;
+  padding-left: 16px;
 }
 
 @media (width >= 900px) {
