@@ -64,6 +64,7 @@
 }
 
 .checkout .checkout-item-variants,
+.checkout .checkout-item-custom-fields,
 .checkout .checkout-item-meta {
   font-size: var(--body-font-size-xs);
   color: var(--dark-color);

@@ -1,6 +1,14 @@
 import { addItem } from '../../scripts/cart.js';
 
 const VARIANT_RE = /^([^:]+):\s*(.+\|.+)$/;
+const FIELDS_RE = /^fields:\s*/i;
+
+function fieldType(name) {
+  const n = name.toLowerCase();
+  if (n === 'email') return 'email';
+  if (n === 'phone' || n === 'tel') return 'tel';
+  return 'text';
+}
 
 function parseDetails(detailsCell) {
   const title = detailsCell.querySelector('h1, h2, h3');
@@ -10,6 +18,7 @@ function parseDetails(detailsCell) {
   let priceFormatted = '';
   let price = 0;
   const variantDefs = [];
+  let customFieldDefs = [];
   const descParagraphs = [];
 
   paragraphs.forEach((p) => {
@@ -19,6 +28,8 @@ function parseDetails(detailsCell) {
     } else if (text.startsWith('$')) {
       priceFormatted = text;
       price = parseFloat(text.replace(/[^0-9.]/g, ''));
+    } else if (FIELDS_RE.test(text)) {
+      customFieldDefs = text.replace(FIELDS_RE, '').split('|').map((f) => f.trim()).filter(Boolean);
     } else if (VARIANT_RE.test(text)) {
       const [, label, rest] = text.match(VARIANT_RE);
       const options = rest.split('|').map((o) => o.trim()).filter(Boolean);
@@ -29,8 +40,28 @@ function parseDetails(detailsCell) {
   });
 
   return {
-    title, sku, price, priceFormatted, variantDefs, descParagraphs,
+    title, sku, price, priceFormatted, variantDefs, customFieldDefs, descParagraphs,
   };
+}
+
+function buildCustomFieldsSection(fieldDefs) {
+  const wrap = document.createElement('div');
+  wrap.className = 'product-custom-fields';
+  fieldDefs.forEach((name) => {
+    const id = `field-${name.toLowerCase().replace(/\s+/g, '-')}`;
+    const label = document.createElement('label');
+    label.htmlFor = id;
+    label.textContent = name;
+    const input = document.createElement('input');
+    input.type = fieldType(name);
+    input.id = id;
+    input.name = name;
+    input.className = 'product-custom-field-input';
+    input.required = true;
+    input.placeholder = name;
+    wrap.append(label, input);
+  });
+  return wrap;
 }
 
 function buildVariantSelect({ label, options }) {
@@ -58,7 +89,7 @@ export default function decorate(block) {
   const img = imageCell.querySelector('img');
 
   const {
-    title, sku, price, priceFormatted, variantDefs, descParagraphs,
+    title, sku, price, priceFormatted, variantDefs, customFieldDefs, descParagraphs,
   } = parseDetails(detailsCell);
 
   block.innerHTML = '';
@@ -90,6 +121,10 @@ export default function decorate(block) {
     details.append(variantsWrap);
   }
 
+  if (customFieldDefs.length) {
+    details.append(buildCustomFieldsSection(customFieldDefs));
+  }
+
   const addBtn = document.createElement('button');
   addBtn.className = 'button primary product-add-btn';
   addBtn.type = 'button';
@@ -106,9 +141,17 @@ export default function decorate(block) {
   block.append(figure, details);
 
   addBtn.addEventListener('click', () => {
+    const fieldsWrap = block.querySelector('.product-custom-fields');
+    if (fieldsWrap && !fieldsWrap.reportValidity()) return;
+
     const variants = {};
     block.querySelectorAll('.product-variant-select').forEach((sel) => {
       variants[sel.dataset.label] = sel.value;
+    });
+
+    const customFields = {};
+    block.querySelectorAll('.product-custom-field-input').forEach((inp) => {
+      customFields[inp.name] = inp.value.trim();
     });
 
     const imageEl = block.querySelector('img');
@@ -119,6 +162,7 @@ export default function decorate(block) {
       priceFormatted,
       image: imageEl?.src || '',
       variants,
+      customFields,
     });
 
     addBtn.textContent = 'Added!';
