@@ -141,8 +141,8 @@ export default function decorate(block) {
   block.append(figure, details);
 
   addBtn.addEventListener('click', () => {
-    const fieldsWrap = block.querySelector('.product-custom-fields');
-    if (fieldsWrap && !fieldsWrap.reportValidity()) return;
+    const fieldInputs = [...block.querySelectorAll('.product-custom-field-input')];
+    if (fieldInputs.some((inp) => !inp.reportValidity())) return;
 
     const variants = {};
     block.querySelectorAll('.product-variant-select').forEach((sel) => {
