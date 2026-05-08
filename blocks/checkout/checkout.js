@@ -17,7 +17,8 @@ function renderOrderSummary(container, items) {
           <img src="${item.image}" alt="${item.title}" width="60" height="60" loading="lazy">
           <div class="checkout-item-details">
             <p class="checkout-item-title">${item.title}</p>
-            ${Object.keys(item.variants).length ? `<p class="checkout-item-variants">${Object.entries(item.variants).map(([k, v]) => `${k}: ${v}`).join(', ')}</p>` : ''}
+            ${Object.keys(item.variants || {}).length ? `<p class="checkout-item-variants">${Object.entries(item.variants).map(([k, v]) => `${k}: ${v}`).join(', ')}</p>` : ''}
+            ${Object.keys(item.customFields || {}).length ? `<p class="checkout-item-custom-fields">${Object.entries(item.customFields).map(([k, v]) => `${k}: ${v}`).join(' · ')}</p>` : ''}
             <p class="checkout-item-meta">Qty: ${item.quantity} &times; ${item.priceFormatted}</p>
           </div>
         </li>

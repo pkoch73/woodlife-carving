@@ -23,12 +23,16 @@ function dispatch(state) {
   document.dispatchEvent(new CustomEvent('cart:updated', { detail: { cart: state } }));
 }
 
-function buildItemId(sku, variants) {
-  const pairs = Object.entries(variants)
+function buildItemId(sku, variants, customFields = {}) {
+  const variantPart = Object.entries(variants)
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([k, v]) => `${k}:${v}`)
     .join('__');
-  return pairs ? `${sku}__${pairs}` : sku;
+  const fieldPart = Object.entries(customFields)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([k, v]) => `${k}:${v}`)
+    .join('__');
+  return [sku, variantPart, fieldPart].filter(Boolean).join('__');
 }
 
 export function getCart() {
@@ -44,16 +48,16 @@ export function getItemCount() {
 }
 
 export function addItem({
-  sku, title, price, priceFormatted, image, variants = {},
+  sku, title, price, priceFormatted, image, variants = {}, customFields = {},
 }) {
   const state = loadCart();
-  const id = buildItemId(sku, variants);
+  const id = buildItemId(sku, variants, customFields);
   const existing = state.items.find((i) => i.id === id);
   if (existing) {
     existing.quantity += 1;
   } else {
     state.items.push({
-      id, sku, title, price, priceFormatted, image, variants, quantity: 1,
+      id, sku, title, price, priceFormatted, image, variants, customFields, quantity: 1,
     });
   }
   state.updatedAt = Date.now();

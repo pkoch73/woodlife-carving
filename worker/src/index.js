@@ -82,7 +82,18 @@ export default {
     }
 
     const amountMoney = { amount: Math.round(total * 100), currency: 'USD' };
-    const note = items.map((i) => `${i.title} x${i.quantity}`).join(', ');
+    const note = items.map((i) => {
+      let line = `${i.title} x${i.quantity}`;
+      if (i.customFields && Object.keys(i.customFields).length) {
+        const details = Object.entries(i.customFields).map(([k, v]) => `${k}: ${v}`).join(', ');
+        line += ` (${details})`;
+      }
+      return line;
+    }).join('\n');
+
+    const buyerEmail = items.flatMap((i) => Object.entries(i.customFields || {})
+      .filter(([k]) => k.toLowerCase() === 'email')
+      .map(([, v]) => v))[0];
 
     const squareRes = await fetch('https://connect.squareupsandbox.com/v2/payments', {
       method: 'POST',
@@ -97,6 +108,7 @@ export default {
         location_id: env.SQUARE_LOCATION_ID,
         idempotency_key: crypto.randomUUID(),
         note,
+        ...(buyerEmail ? { buyer_email_address: buyerEmail } : {}),
       }),
     });
 

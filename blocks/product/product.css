@@ -82,6 +82,37 @@
   outline-offset: 2px;
 }
 
+.product .product-custom-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.product .product-custom-fields label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 4px;
+  font-size: var(--body-font-size-s);
+}
+
+.product .product-custom-field-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--dark-color);
+  border-radius: 4px;
+  font: inherit;
+  font-size: var(--body-font-size-s);
+  background-color: var(--background-color);
+  color: var(--text-color);
+  box-sizing: border-box;
+}
+
+.product .product-custom-field-input:focus {
+  outline: 2px solid var(--link-color);
+  outline-offset: 2px;
+}
+
 .product .product-add-btn {
   width: 100%;
   margin-bottom: 24px;
