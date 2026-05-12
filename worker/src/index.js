@@ -57,6 +57,67 @@ async function handleReviews(request, env) {
   return response;
 }
 
+const SQUARE_BASE = 'https://connect.squareupsandbox.com/v2';
+const SQUARE_VERSION = '2024-01-17';
+
+function squareHeaders(env) {
+  return {
+    Authorization: `Bearer ${env.SQUARE_ACCESS_TOKEN}`,
+    'Content-Type': 'application/json',
+    'Square-Version': SQUARE_VERSION,
+  };
+}
+
+// Returns the catalog variation ID for a SKU, or null if not found.
+async function catalogIdBySku(sku, env) {
+  const res = await fetch(`${SQUARE_BASE}/catalog/search`, {
+    method: 'POST',
+    headers: squareHeaders(env),
+    body: JSON.stringify({
+      object_types: ['ITEM_VARIATION'],
+      query: { exact_query: { attribute_name: 'sku', attribute_value: sku } },
+    }),
+  });
+  const data = await res.json();
+  return data.objects?.[0]?.id ?? null;
+}
+
+// Creates a Square Order and returns the full order object.
+async function createOrder(items, catalogMap, env) {
+  const lineItems = items.map((item) => {
+    const catalogObjectId = catalogMap[item.sku];
+    const customNote = Object.keys(item.customFields || {}).length
+      ? Object.entries(item.customFields).map(([k, v]) => `${k}: ${v}`).join(', ')
+      : undefined;
+
+    if (catalogObjectId) {
+      return {
+        catalog_object_id: catalogObjectId,
+        quantity: String(item.quantity),
+        ...(customNote ? { note: customNote } : {}),
+      };
+    }
+
+    // Fallback: ad-hoc line item for products not in the Square catalog
+    return {
+      name: item.title,
+      quantity: String(item.quantity),
+      base_price_money: { amount: Math.round(item.price * 100), currency: 'USD' },
+      ...(customNote ? { note: customNote } : {}),
+    };
+  });
+
+  const res = await fetch(`${SQUARE_BASE}/orders`, {
+    method: 'POST',
+    headers: squareHeaders(env),
+    body: JSON.stringify({
+      idempotency_key: crypto.randomUUID(),
+      order: { location_id: env.SQUARE_LOCATION_ID, line_items: lineItems },
+    }),
+  });
+  return res.json();
+}
+
 export default {
   async fetch(request, env) {
     if (request.method === 'OPTIONS') return corsResponse();
@@ -81,33 +142,35 @@ export default {
       return json({ error: 'Missing required fields: token, total, items' }, 400);
     }
 
-    const amountMoney = { amount: Math.round(total * 100), currency: 'USD' };
-    const note = items.map((i) => {
-      let line = `${i.title} x${i.quantity}`;
-      if (i.customFields && Object.keys(i.customFields).length) {
-        const details = Object.entries(i.customFields).map(([k, v]) => `${k}: ${v}`).join(', ');
-        line += ` (${details})`;
-      }
-      return line;
-    }).join('\n');
+    // Look up Square catalog IDs for all unique SKUs in parallel
+    const uniqueSkus = [...new Set(items.map((i) => i.sku))];
+    const catalogMap = Object.fromEntries(
+      await Promise.all(uniqueSkus.map(async (sku) => [sku, await catalogIdBySku(sku, env)])),
+    );
+
+    // Create a Square Order with proper line items
+    const orderData = await createOrder(items, catalogMap, env);
+    if (!orderData.order) {
+      return json({ error: orderData.errors ?? 'Failed to create order' }, 500);
+    }
+
+    // Use the order's calculated total so Square can reconcile the payment
+    const amountMoney = orderData.order.total_money
+      ?? { amount: Math.round(total * 100), currency: 'USD' };
 
     const buyerEmail = items.flatMap((i) => Object.entries(i.customFields || {})
       .filter(([k]) => k.toLowerCase() === 'email')
       .map(([, v]) => v))[0];
 
-    const squareRes = await fetch('https://connect.squareupsandbox.com/v2/payments', {
+    const squareRes = await fetch(`${SQUARE_BASE}/payments`, {
       method: 'POST',
-      headers: {
-        Authorization: `Bearer ${env.SQUARE_ACCESS_TOKEN}`,
-        'Content-Type': 'application/json',
-        'Square-Version': '2024-01-17',
-      },
+      headers: squareHeaders(env),
       body: JSON.stringify({
         source_id: token,
         amount_money: amountMoney,
         location_id: env.SQUARE_LOCATION_ID,
+        order_id: orderData.order.id,
         idempotency_key: crypto.randomUUID(),
-        note,
         ...(buyerEmail ? { buyer_email_address: buyerEmail } : {}),
       }),
     });
@@ -118,6 +181,6 @@ export default {
       return json({ error: data.errors }, 400);
     }
 
-    return json({ orderId: data.payment.id, status: data.payment.status });
+    return json({ orderId: data.payment.order_id, status: data.payment.status });
   },
 };
