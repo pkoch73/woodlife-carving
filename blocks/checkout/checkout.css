@@ -81,6 +81,66 @@
   margin: 0;
 }
 
+.checkout .checkout-section-label {
+  font-size: var(--body-font-size-s);
+  font-weight: 600;
+  color: var(--dark-color);
+  margin: 20px 0 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.checkout .checkout-customer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.checkout .checkout-field-row {
+  display: flex;
+  gap: 12px;
+}
+
+.checkout .checkout-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.checkout .checkout-field-narrow {
+  flex: 0 0 80px;
+}
+
+.checkout .checkout-field label {
+  font-size: var(--body-font-size-xs);
+  font-weight: 500;
+  color: var(--dark-color);
+}
+
+.checkout .checkout-optional {
+  font-weight: 400;
+  color: #888;
+}
+
+.checkout .checkout-field input {
+  padding: 10px 12px;
+  border: 1px solid var(--dark-color);
+  border-radius: 4px;
+  font: inherit;
+  font-size: var(--body-font-size-s);
+  background-color: var(--background-color);
+  color: var(--text-color);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.checkout .checkout-field input:focus {
+  outline: 2px solid var(--link-color);
+  outline-offset: 2px;
+}
+
 .checkout .checkout-card-field {
   border: 1px solid var(--dark-color);
   border-radius: 4px;

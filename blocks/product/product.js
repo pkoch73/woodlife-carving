@@ -2,6 +2,13 @@ import { addItem } from '../../scripts/cart.js';
 
 const VARIANT_RE = /^([^:]+):\s*(.+\|.+)$/;
 const FIELDS_RE = /^fields:\s*/i;
+const FULFILLMENT_RE = /^fulfillment:\s*/i;
+
+function parseFulfillment(text) {
+  const val = text.replace(FULFILLMENT_RE, '').trim().toUpperCase();
+  if (val === 'SHIPMENT' || val === 'PICKUP') return val;
+  return null;
+}
 
 function fieldType(name) {
   const n = name.toLowerCase();
@@ -19,6 +26,7 @@ function parseDetails(detailsCell) {
   let price = 0;
   const variantDefs = [];
   let customFieldDefs = [];
+  let fulfillment = null;
   const descParagraphs = [];
 
   paragraphs.forEach((p) => {
@@ -30,6 +38,8 @@ function parseDetails(detailsCell) {
       price = parseFloat(text.replace(/[^0-9.]/g, ''));
     } else if (FIELDS_RE.test(text)) {
       customFieldDefs = text.replace(FIELDS_RE, '').split('|').map((f) => f.trim()).filter(Boolean);
+    } else if (FULFILLMENT_RE.test(text)) {
+      fulfillment = parseFulfillment(text);
     } else if (VARIANT_RE.test(text)) {
       const [, label, rest] = text.match(VARIANT_RE);
       const options = rest.split('|').map((o) => o.trim()).filter(Boolean);
@@ -40,7 +50,7 @@ function parseDetails(detailsCell) {
   });
 
   return {
-    title, sku, price, priceFormatted, variantDefs, customFieldDefs, descParagraphs,
+    title, sku, price, priceFormatted, variantDefs, customFieldDefs, fulfillment, descParagraphs,
   };
 }
 
@@ -89,7 +99,7 @@ export default function decorate(block) {
   const img = imageCell.querySelector('img');
 
   const {
-    title, sku, price, priceFormatted, variantDefs, customFieldDefs, descParagraphs,
+    title, sku, price, priceFormatted, variantDefs, customFieldDefs, fulfillment, descParagraphs,
   } = parseDetails(detailsCell);
 
   block.innerHTML = '';
@@ -163,6 +173,7 @@ export default function decorate(block) {
       image: imageEl?.src || '',
       variants,
       customFields,
+      fulfillment,
     });
 
     addBtn.textContent = 'Added!';

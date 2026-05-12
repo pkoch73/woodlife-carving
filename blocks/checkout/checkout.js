@@ -54,12 +54,51 @@ export default async function decorate(block) {
     return;
   }
 
+  const needsShipping = cart.items.some((i) => i.fulfillment === 'SHIPMENT');
+
   block.innerHTML = `
     <div class="checkout-layout">
       <div class="checkout-summary"></div>
       <div class="checkout-form-wrap">
-        <h2 class="checkout-form-title">Payment</h2>
+        <h2 class="checkout-form-title">Your Details</h2>
         <form class="checkout-form" novalidate>
+          <div class="checkout-customer">
+            <div class="checkout-field-row">
+              <div class="checkout-field">
+                <label for="co-name">Full name</label>
+                <input id="co-name" name="name" type="text" autocomplete="name" required placeholder="Jane Smith">
+              </div>
+              <div class="checkout-field">
+                <label for="co-email">Email</label>
+                <input id="co-email" name="email" type="email" autocomplete="email" required placeholder="jane@example.com">
+              </div>
+            </div>
+            ${needsShipping ? `
+            <p class="checkout-section-label">Shipping address</p>
+            <div class="checkout-field">
+              <label for="co-addr1">Address</label>
+              <input id="co-addr1" name="addr1" type="text" autocomplete="address-line1" required placeholder="123 Main St">
+            </div>
+            <div class="checkout-field">
+              <label for="co-addr2">Apt / Suite <span class="checkout-optional">(optional)</span></label>
+              <input id="co-addr2" name="addr2" type="text" autocomplete="address-line2" placeholder="Apt 4B">
+            </div>
+            <div class="checkout-field-row">
+              <div class="checkout-field">
+                <label for="co-city">City</label>
+                <input id="co-city" name="city" type="text" autocomplete="address-level2" required placeholder="Chester">
+              </div>
+              <div class="checkout-field checkout-field-narrow">
+                <label for="co-state">State</label>
+                <input id="co-state" name="state" type="text" autocomplete="address-level1" required placeholder="VT" maxlength="2">
+              </div>
+              <div class="checkout-field checkout-field-narrow">
+                <label for="co-zip">ZIP</label>
+                <input id="co-zip" name="zip" type="text" autocomplete="postal-code" required placeholder="05143" maxlength="10">
+              </div>
+            </div>` : ''}
+          </div>
+          <p class="checkout-section-label">Payment</p>
           <div id="square-card-container" class="checkout-card-field"></div>
           <div class="checkout-error" aria-live="polite" hidden></div>
           <button class="button primary checkout-submit-btn" type="submit">
@@ -94,6 +133,7 @@ export default async function decorate(block) {
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
+    if (!form.reportValidity()) return;
     errorEl.hidden = true;
     submitBtn.disabled = true;
     submitBtn.textContent = 'Processing…';
@@ -104,6 +144,20 @@ export default async function decorate(block) {
         throw new Error(result.errors?.[0]?.message || 'Card tokenization failed');
       }
 
+      const val = (name) => form.elements[name]?.value.trim() || undefined;
+      const customer = {
+        name: val('name'),
+        email: val('email'),
+        address: needsShipping ? {
+          line1: val('addr1'),
+          line2: val('addr2'),
+          city: val('city'),
+          state: val('state'),
+          zip: val('zip'),
+          country: 'US',
+        } : undefined,
+      };
+
       const response = await fetch(CHECKOUT_API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -111,6 +165,7 @@ export default async function decorate(block) {
           token: result.token,
           total: subtotal,
           items: cart.items,
+          customer,
         }),
       });
 

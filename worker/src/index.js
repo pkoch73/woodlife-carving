@@ -82,8 +82,41 @@ async function catalogIdBySku(sku, env) {
   return data.objects?.[0]?.id ?? null;
 }
 
+function buildFulfillment(items, customer) {
+  let type = null;
+  if (items.find((i) => i.fulfillment === 'SHIPMENT')) type = 'SHIPMENT';
+  else if (items.find((i) => i.fulfillment === 'PICKUP')) type = 'PICKUP';
+  if (!type) return null;
+
+  const recipient = {
+    ...(customer?.name ? { display_name: customer.name } : {}),
+    ...(customer?.email ? { email_address: customer.email } : {}),
+  };
+
+  if (type === 'SHIPMENT' && customer?.address) {
+    const {
+      line1, line2, city, state, zip, country,
+    } = customer.address;
+    recipient.address = {
+      address_line_1: line1 ?? '',
+      ...(line2 ? { address_line_2: line2 } : {}),
+      locality: city ?? '',
+      administrative_district_level_1: state ?? '',
+      postal_code: zip ?? '',
+      country: country ?? 'US',
+    };
+    return { type, state: 'PROPOSED', shipment_details: { recipient } };
+  }
+
+  if (type === 'PICKUP') {
+    return { type, state: 'PROPOSED', pickup_details: { recipient } };
+  }
+
+  return null;
+}
+
 // Creates a Square Order and returns the full order object.
-async function createOrder(items, catalogMap, env) {
+async function createOrder(items, catalogMap, customer, env) {
   const lineItems = items.map((item) => {
     const catalogObjectId = catalogMap[item.sku];
     const customNote = Object.keys(item.customFields || {}).length
@@ -107,12 +140,18 @@ async function createOrder(items, catalogMap, env) {
     };
   });
 
+  const fulfillment = buildFulfillment(items, customer);
+
   const res = await fetch(`${SQUARE_BASE}/orders`, {
     method: 'POST',
     headers: squareHeaders(env),
     body: JSON.stringify({
       idempotency_key: crypto.randomUUID(),
-      order: { location_id: env.SQUARE_LOCATION_ID, line_items: lineItems },
+      order: {
+        location_id: env.SQUARE_LOCATION_ID,
+        line_items: lineItems,
+        ...(fulfillment ? { fulfillments: [fulfillment] } : {}),
+      },
     }),
   });
   return res.json();
@@ -136,7 +175,9 @@ export default {
       return json({ error: 'Invalid JSON body' }, 400);
     }
 
-    const { token, total, items } = body;
+    const {
+      token, total, items, customer,
+    } = body;
 
     if (!token || typeof total !== 'number' || !Array.isArray(items)) {
       return json({ error: 'Missing required fields: token, total, items' }, 400);
@@ -148,8 +189,8 @@ export default {
       await Promise.all(uniqueSkus.map(async (sku) => [sku, await catalogIdBySku(sku, env)])),
     );
 
-    // Create a Square Order with proper line items
-    const orderData = await createOrder(items, catalogMap, env);
+    // Create a Square Order with proper line items and fulfillment
+    const orderData = await createOrder(items, catalogMap, customer, env);
     if (!orderData.order) {
       return json({ error: orderData.errors ?? 'Failed to create order' }, 500);
     }
@@ -158,9 +199,11 @@ export default {
     const amountMoney = orderData.order.total_money
       ?? { amount: Math.round(total * 100), currency: 'USD' };
 
-    const buyerEmail = items.flatMap((i) => Object.entries(i.customFields || {})
-      .filter(([k]) => k.toLowerCase() === 'email')
-      .map(([, v]) => v))[0];
+    // Email: prefer checkout customer field, fall back to per-item custom fields
+    const buyerEmail = customer?.email
+      || items.flatMap((i) => Object.entries(i.customFields || {})
+        .filter(([k]) => k.toLowerCase() === 'email')
+        .map(([, v]) => v))[0];
 
     const squareRes = await fetch(`${SQUARE_BASE}/payments`, {
       method: 'POST',

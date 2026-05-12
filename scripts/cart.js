@@ -48,7 +48,7 @@ export function getItemCount() {
 }
 
 export function addItem({
-  sku, title, price, priceFormatted, image, variants = {}, customFields = {},
+  sku, title, price, priceFormatted, image, variants = {}, customFields = {}, fulfillment = null,
 }) {
   const state = loadCart();
   const id = buildItemId(sku, variants, customFields);
@@ -57,7 +57,16 @@ export function addItem({
     existing.quantity += 1;
   } else {
     state.items.push({
-      id, sku, title, price, priceFormatted, image, variants, customFields, quantity: 1,
+      id,
+      sku,
+      title,
+      price,
+      priceFormatted,
+      image,
+      variants,
+      customFields,
+      fulfillment,
+      quantity: 1,
     });
   }
   state.updatedAt = Date.now();
