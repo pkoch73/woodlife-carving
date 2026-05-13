@@ -49,6 +49,7 @@ export function getItemCount() {
 
 export function addItem({
   sku, title, price, priceFormatted, image, variants = {}, customFields = {}, fulfillment = null,
+  printifySku,
 }) {
   const state = loadCart();
   const id = buildItemId(sku, variants, customFields);
@@ -56,7 +57,7 @@ export function addItem({
   if (existing) {
     existing.quantity += 1;
   } else {
-    state.items.push({
+    const item = {
       id,
       sku,
       title,
@@ -67,7 +68,9 @@ export function addItem({
       customFields,
       fulfillment,
       quantity: 1,
-    });
+    };
+    if (printifySku) item.printifySku = printifySku;
+    state.items.push(item);
   }
   state.updatedAt = Date.now();
   saveCart(state);

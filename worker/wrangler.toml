@@ -10,3 +10,5 @@ GOOGLE_PLACE_ID = "ChIJYXnWyDix4YkR82XqgTXLw2o"
 #   npx wrangler secret put SQUARE_ACCESS_TOKEN
 #   npx wrangler secret put SQUARE_LOCATION_ID
 #   npx wrangler secret put GOOGLE_PLACES_API_KEY
+#   npx wrangler secret put PRINTIFY_API_TOKEN
+#   npx wrangler secret put PRINTIFY_SHOP_ID
