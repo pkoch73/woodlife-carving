@@ -157,6 +157,52 @@ async function createOrder(items, catalogMap, customer, env) {
   return res.json();
 }
 
+// Creates a Printify fulfillment order for items that carry a printifySku.
+// Returns the Printify order ID on success, or null when there are no Printify items.
+async function createPrintifyOrder(env, squareOrderId, items, customer) {
+  const lineItems = items
+    .filter((i) => i.printifySku)
+    .map((i) => ({ sku: i.printifySku, quantity: i.quantity }));
+
+  if (!lineItems.length) return null;
+
+  // Printify requires first_name and last_name separately; split on first space
+  const [firstName, ...rest] = (customer?.name || '').trim().split(/\s+/);
+  const lastName = rest.join(' ') || firstName || 'Customer';
+  const addr = customer?.address || {};
+
+  const res = await fetch(
+    `https://api.printify.com/v1/shops/${env.PRINTIFY_SHOP_ID}/orders.json`,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${env.PRINTIFY_API_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        external_id: squareOrderId,
+        send_shipping_notification: true,
+        line_items: lineItems,
+        address_to: {
+          first_name: firstName || 'Customer',
+          last_name: lastName,
+          email: customer?.email || '',
+          phone: '',
+          address1: addr.line1 || '',
+          city: addr.city || '',
+          region: addr.state || '',
+          zip: addr.zip || '',
+          country: addr.country || 'US',
+        },
+      }),
+    },
+  );
+
+  const data = await res.json();
+  if (!res.ok) throw new Error(JSON.stringify(data));
+  return data.id;
+}
+
 export default {
   async fetch(request, env) {
     if (request.method === 'OPTIONS') return corsResponse();
@@ -224,6 +270,28 @@ export default {
       return json({ error: data.errors }, 400);
     }
 
-    return json({ orderId: data.payment.order_id, status: data.payment.status });
+    const squareOrderId = data.payment.order_id;
+
+    let printifyOrderId = null;
+    let printifyError = false;
+
+    if (env.PRINTIFY_API_TOKEN && env.PRINTIFY_SHOP_ID) {
+      try {
+        printifyOrderId = await createPrintifyOrder(env, squareOrderId, items, customer);
+      } catch (err) {
+        // Square payment succeeded — don't fail the customer response over a Printify error
+        console.error('Printify order creation failed:', err.message);
+        printifyError = true;
+      }
+    } else if (items.some((i) => i.printifySku)) {
+      console.warn('Printify SKUs present but PRINTIFY_API_TOKEN / PRINTIFY_SHOP_ID not configured');
+    }
+
+    return json({
+      orderId: squareOrderId,
+      status: data.payment.status,
+      printifyOrderId,
+      ...(printifyError ? { printifyError: true } : {}),
+    });
   },
 };

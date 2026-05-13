@@ -3,6 +3,27 @@ import { addItem } from '../../scripts/cart.js';
 const VARIANT_RE = /^([^:]+):\s*(.+\|.+)$/;
 const FIELDS_RE = /^fields:\s*/i;
 const FULFILLMENT_RE = /^fulfillment:\s*/i;
+const PRINTIFY_SKUS_RE = /^Printify SKUs:\s*(.+)$/;
+
+function parsePrintifySkuMap(raw) {
+  const map = {};
+  raw.split('|').forEach((entry) => {
+    const eqIdx = entry.lastIndexOf('=');
+    if (eqIdx === -1) return;
+    const combo = entry.slice(0, eqIdx).trim();
+    const sku = entry.slice(eqIdx + 1).trim();
+    if (sku) map[combo] = sku;
+  });
+  return map;
+}
+
+function resolveComboKey(variantSelects) {
+  return [...variantSelects]
+    .map((sel) => ({ label: sel.dataset.label, value: sel.value }))
+    .sort((a, b) => a.label.localeCompare(b.label))
+    .map((v) => v.value)
+    .join('+');
+}
 
 function parseFulfillment(text) {
   const val = text.replace(FULFILLMENT_RE, '').trim().toUpperCase();
@@ -27,6 +48,7 @@ function parseDetails(detailsCell) {
   const variantDefs = [];
   let customFieldDefs = [];
   let fulfillment = null;
+  let printifySkuMap = null;
   const descParagraphs = [];
 
   paragraphs.forEach((p) => {
@@ -40,6 +62,9 @@ function parseDetails(detailsCell) {
       customFieldDefs = text.replace(FIELDS_RE, '').split('|').map((f) => f.trim()).filter(Boolean);
     } else if (FULFILLMENT_RE.test(text)) {
       fulfillment = parseFulfillment(text);
+    } else if (PRINTIFY_SKUS_RE.test(text)) {
+      const [, raw] = text.match(PRINTIFY_SKUS_RE);
+      printifySkuMap = parsePrintifySkuMap(raw);
     } else if (VARIANT_RE.test(text)) {
       const [, label, rest] = text.match(VARIANT_RE);
       const options = rest.split('|').map((o) => o.trim()).filter(Boolean);
@@ -49,8 +74,19 @@ function parseDetails(detailsCell) {
     }
   });
 
+  // Printify products always ship — set fulfillment unless the author overrode it
+  if (printifySkuMap && !fulfillment) fulfillment = 'SHIPMENT';
+
   return {
-    title, sku, price, priceFormatted, variantDefs, customFieldDefs, fulfillment, descParagraphs,
+    title,
+    sku,
+    price,
+    priceFormatted,
+    variantDefs,
+    customFieldDefs,
+    fulfillment,
+    printifySkuMap,
+    descParagraphs,
   };
 }
 
@@ -99,7 +135,8 @@ export default function decorate(block) {
   const img = imageCell.querySelector('img');
 
   const {
-    title, sku, price, priceFormatted, variantDefs, customFieldDefs, fulfillment, descParagraphs,
+    title, sku, price, priceFormatted, variantDefs, customFieldDefs, fulfillment,
+    printifySkuMap, descParagraphs,
   } = parseDetails(detailsCell);
 
   block.innerHTML = '';
@@ -154,8 +191,9 @@ export default function decorate(block) {
     const fieldInputs = [...block.querySelectorAll('.product-custom-field-input')];
     if (fieldInputs.some((inp) => !inp.reportValidity())) return;
 
+    const variantSelects = block.querySelectorAll('.product-variant-select');
     const variants = {};
-    block.querySelectorAll('.product-variant-select').forEach((sel) => {
+    variantSelects.forEach((sel) => {
       variants[sel.dataset.label] = sel.value;
     });
 
@@ -163,6 +201,15 @@ export default function decorate(block) {
     block.querySelectorAll('.product-custom-field-input').forEach((inp) => {
       customFields[inp.name] = inp.value.trim();
     });
+
+    let printifySku;
+    if (printifySkuMap) {
+      if (variantSelects.length === 0) {
+        [printifySku] = Object.values(printifySkuMap);
+      } else {
+        printifySku = printifySkuMap[resolveComboKey(variantSelects)];
+      }
+    }
 
     const imageEl = block.querySelector('img');
     addItem({
@@ -174,6 +221,7 @@ export default function decorate(block) {
       variants,
       customFields,
       fulfillment,
+      printifySku,
     });
 
     addBtn.textContent = 'Added!';
