@@ -1,2 +1,3 @@
 helix-importer-ui
 *.min.js
+cdn-worker/src/index.mjs

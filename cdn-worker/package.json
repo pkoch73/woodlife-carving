@@ -1,0 +1,14 @@
+{
+  "name": "woodlife-cdn-worker",
+  "version": "1.0.0",
+  "description": "Cloudflare Worker that fronts woodlifecarving.com and proxies to AEM Edge Delivery Services",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^3.0.0"
+  }
+}
