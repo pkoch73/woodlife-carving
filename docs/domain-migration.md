@@ -18,6 +18,10 @@ Before touching DNS, confirm:
 - [ ] All pages, product listings, and checkout flows work on the `.aem.page` preview URL
 - [ ] 301 redirects set up for any Etsy-specific URLs indexed by Google
 - [ ] `sitemap.xml` and `robots.txt` are in place
+<<<<<<< claude/zealous-wilbur-eb5bc5
+- [ ] Notify Adobe's go-live team: aemgolives@adobe.com
+=======
+>>>>>>> main
 
 ---
 
