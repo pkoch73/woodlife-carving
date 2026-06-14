@@ -1,0 +1,11 @@
+.google-form-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.google-form-wrapper iframe {
+  width: 100%;
+  max-width: 900px;
+  border: none;
+}
