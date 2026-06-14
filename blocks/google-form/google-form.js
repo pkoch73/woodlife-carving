@@ -4,25 +4,18 @@ export default function decorate(block) {
 
   block.innerHTML = '';
 
+  const wrapper = document.createElement('div');
+  wrapper.className = 'google-form-wrapper';
+
   const iframe = document.createElement('iframe');
   iframe.src = url;
   iframe.style.width = '100%';
   iframe.style.border = '0';
+  iframe.style.display = 'block';
 
-  // 🔥 Responsive height logic
-  function setHeight() {
-    const vh = window.innerHeight;
+  // key fix: let CSS control height
+  iframe.className = 'google-form-iframe';
 
-    // mobile vs desktop scaling
-    if (window.innerWidth < 768) {
-      iframe.style.height = `${vh * 1.2}px`;
-    } else {
-      iframe.style.height = `${vh * 0.9}px`;
-    }
-  }
-
-  setHeight();
-  window.addEventListener('resize', setHeight);
-
-  block.appendChild(iframe);
+  wrapper.appendChild(iframe);
+  block.appendChild(wrapper);
 }
