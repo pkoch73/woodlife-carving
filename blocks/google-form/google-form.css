@@ -1,12 +1,10 @@
 .google-form-wrapper {
   width: 100%;
-  display: flex;
-  justify-content: center;
+  max-width: 100%;
 }
 
-.google-form-wrapper iframe {
+.google-form-iframe {
   width: 100%;
-  max-width: 900px;
-  border: none;
-  border-radius: 8px;
+  height: 90vh; /* key: makes it fill screen vertically */
+  min-height: 700px;
 }
